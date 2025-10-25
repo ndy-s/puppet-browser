@@ -1,0 +1,270 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Shared Single-Tab Browser — Controller Queue</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0f1724; --card:#0b1220; --muted:#9aa6b2; --accent:#06b6d4; --glass: rgba(255,255,255,0.03);
+    --success:#10b981; --danger:#ef4444; --white:#e6eef6;
+  }
+  *{box-sizing:border-box;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  body{background:linear-gradient(180deg,#071021 0%, #071826 100%); color:var(--white); margin:0; min-height:100vh; display:flex; justify-content:center; padding:28px;}
+  .app{width:100%; max-width:1200px;}
+  header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  h1{margin:0;font-size:18px;font-weight:800;letter-spacing:-0.2px;}
+  .controls{display:flex;gap:12px;align-items:center;}
+  .input{background:var(--card);border:1px solid var(--glass);padding:8px 10px;border-radius:8px;display:flex;gap:8px;align-items:center;}
+  .input input{background:transparent;border:0;color:var(--white);outline:none;width:420px;}
+  .btn{background:linear-gradient(180deg,var(--accent),#0891b2);border:0;color:#042b2f;padding:8px 12px;border-radius:8px;font-weight:600;cursor:pointer;}
+  .btn.ghost{background:transparent;border:1px solid var(--glass);color:var(--white);padding:8px 10px;}
+  .small{padding:6px 10px;font-size:13px;border-radius:8px;}
+  .status{display:flex;gap:12px;align-items:center;color:var(--muted);font-size:13px;}
+  .viewer-wrap{margin-top:12px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px;border-radius:12px;box-shadow:0 6px 30px rgba(2,6,23,0.6);}
+  #viewer{width:100%; height:600px; background:#000;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative;}
+  #viewer img{max-width:100%; max-height:100%; display:block; user-select:none; -webkit-user-drag:none;}
+  .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .meta{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:13px;}
+  .queue{background:rgba(255,255,255,0.02);padding:8px;border-radius:8px;color:var(--muted);font-size:13px;}
+  .overlay{position:absolute;left:12px;bottom:12px;background:rgba(2,6,23,0.7);padding:8px 10px;border-radius:8px;font-size:13px;color:var(--white);display:flex;gap:8px;align-items:center}
+  .kbd{background:#071226;padding:4px 8px;border-radius:6px;border:1px solid rgba(255,255,255,0.03);font-size:13px}
+  @media (max-width:900px){ .input input{width:200px;} #viewer{height:420px;} }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <h1>Shared Browser — Single Tab</h1>
+        <div class="meta" style="margin-top:6px">
+          <div id="urlLabel" style="font-size:13px;color:var(--muted)">URL: <span id="currentUrl">loading…</span></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="status">
+          Role: <strong id="role" style="margin-left:6px">—</strong>
+          &nbsp;|&nbsp;
+          Controller: <span id="controllerId">—</span>
+        </div>
+        <div class="queue" id="queueStatus">Queue: —</div>
+      </div>
+    </header>
+
+    <div class="toolbar">
+      <div class="input" style="align-items:center">
+        <button id="backBtn" class="btn ghost small">← Back</button>
+        <button id="refreshBtn" class="btn ghost small">⟳</button>
+        <input id="urlInput" placeholder="Type URL or search (will Google if not URL)" />
+        <button id="goBtn" class="btn">Go</button>
+      </div>
+
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <button id="requestControlBtn" class="btn ghost small">Request Control</button>
+        <button id="releaseControlBtn" class="btn ghost small" style="display:none">Release</button>
+      </div>
+    </div>
+
+    <div class="viewer-wrap">
+      <div id="viewer" tabindex="0">
+        <div style="color:var(--muted)">Waiting for frames…</div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;display:flex;gap:12px;align-items:center;justify-content:space-between">
+      <div style="color:var(--muted);font-size:13px">Type, paste (Ctrl+V), press Enter/Backspace, arrows — works for controller.</div>
+      <div class="overlay" id="keyboardHelp">
+        <div class="kbd">Shift</div>
+        <div class="kbd">Ctrl</div>
+        <div class="kbd">Alt</div>
+        <div class="kbd">Enter</div>
+        <div class="kbd">Backspace</div>
+      </div>
+    </div>
+  </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+
+// DOM refs
+const viewer = document.getElementById('viewer');
+const urlInput = document.getElementById('urlInput');
+const goBtn = document.getElementById('goBtn');
+const backBtn = document.getElementById('backBtn');
+const refreshBtn = document.getElementById('refreshBtn');
+const requestControlBtn = document.getElementById('requestControlBtn');
+const releaseControlBtn = document.getElementById('releaseControlBtn');
+const roleEl = document.getElementById('role');
+const ctrlEl = document.getElementById('controllerId');
+const queueStatus = document.getElementById('queueStatus');
+const currentUrlLabel = document.getElementById('currentUrl');
+
+let viewerImg = null;
+let myRole = 'viewer';
+let myQueuePos = null;
+
+// ensure viewer focusable
+viewer.setAttribute('tabindex','0');
+viewer.focus();
+
+function showFrame(dataUrl) {
+  if (!viewerImg) {
+    viewer.innerHTML = '';
+    viewerImg = new Image();
+    viewer.appendChild(viewerImg);
+    viewerImg.style.userSelect = 'none';
+    viewerImg.style.webkitUserDrag = 'none';
+
+    viewerImg.addEventListener('click', ev => {
+      if (myRole !== 'controller') { alert('You are view-only. Request control to interact.'); return; }
+      const rect = viewerImg.getBoundingClientRect();
+      const scaleX = viewerImg.naturalWidth / rect.width;
+      const scaleY = viewerImg.naturalHeight / rect.height;
+      const x = Math.round((ev.clientX - rect.left) * scaleX);
+      const y = Math.round((ev.clientY - rect.top) * scaleY);
+      socket.emit('click', { x, y });
+    });
+  }
+  viewerImg.src = dataUrl;
+}
+
+// UI bindings
+goBtn.onclick = () => {
+  const v = urlInput.value.trim();
+  socket.emit('navigate', { url: v });
+};
+backBtn.onclick = () => socket.emit('go-back');
+refreshBtn.onclick = () => socket.emit('refresh');
+requestControlBtn.onclick = () => { socket.emit('request-control'); requestControlBtn.disabled = true; requestControlBtn.textContent = 'Requested…'; };
+releaseControlBtn.onclick = () => { socket.emit('release-control'); };
+
+// keyboard capture: handle keydown/keyup and paste
+viewer.addEventListener('keydown', (e) => {
+  if (myRole !== 'controller') return;
+  // handle printable characters as 'key' events
+  // We'll send keydown/up for modifier keys and 'press' for character keys where appropriate.
+  // Use key names that Puppeteer accepts, e.g. 'Enter','Backspace','ArrowUp', 'a', 'A' etc.
+  e.preventDefault();
+
+  // If printable character and no modifiers (or with shift) we can use 'press' for simplicity
+  const key = e.key;
+  const isModifier = (key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta');
+  if (isModifier) {
+    socket.emit('key', { kind: 'down', key });
+  } else {
+    // for combos like Ctrl+C or Ctrl+V send a 'press' of the key and modifiers will be present in the page keyboard state
+    // But since we cannot reliably detect hold state across clients, we send explicit down/up for Control when pressed/released.
+    // We'll send 'press' for normal keys
+    socket.emit('key', { kind: 'press', key });
+  }
+});
+
+viewer.addEventListener('keyup', (e) => {
+  if (myRole !== 'controller') return;
+  const key = e.key;
+  const isModifier = (key === 'Shift' || key === 'Control' || key === 'Alt' || key === 'Meta');
+  if (isModifier) {
+    socket.emit('key', { kind: 'up', key });
+  }
+});
+
+// Handle paste: capture clipboard paste and send plain text to server to type
+viewer.addEventListener('paste', (e) => {
+  if (myRole !== 'controller') return;
+  e.preventDefault();
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  if (text) socket.emit('paste', { text });
+});
+
+// wheel scroll - relative deltas
+viewer.addEventListener('wheel', (e) => {
+  if (myRole !== 'controller') return;
+  e.preventDefault();
+  socket.emit('scroll', { deltaX: e.deltaX, deltaY: e.deltaY });
+}, { passive: false });
+
+// Request queue updates & state updates
+socket.on('state', ({ url, controller, queue }) => {
+  currentUrlLabel.textContent = (url || '').slice(0, 120);
+  ctrlEl.textContent = controller || '—';
+  // update role display next:
+  if (controller === socket.id) {
+    myRole = 'controller';
+    roleEl.textContent = 'controller';
+    releaseControlBtn.style.display = 'inline-block';
+    requestControlBtn.style.display = 'none';
+  } else {
+    if (myRole !== 'viewer') {
+      myRole = 'viewer';
+    }
+    roleEl.textContent = 'viewer';
+    releaseControlBtn.style.display = 'none';
+    requestControlBtn.style.display = 'inline-block';
+  }
+
+  // queue status
+  if (!queue || queue.length === 0) {
+    queueStatus.textContent = 'Queue: —';
+    requestControlBtn.disabled = false;
+    requestControlBtn.textContent = 'Request Control';
+  } else {
+    // find position
+    const pos = queue.indexOf(socket.id);
+    if (pos === -1) {
+      queueStatus.textContent = `Queue length: ${queue.length}`;
+      requestControlBtn.disabled = false;
+      requestControlBtn.textContent = 'Request Control';
+    } else {
+      queueStatus.textContent = `Your position: #${pos+1}`;
+      requestControlBtn.disabled = true;
+      requestControlBtn.textContent = `Requested (#${pos+1})`;
+    }
+  }
+});
+
+// frame updates
+socket.on('frame', ({ dataUrl }) => {
+  showFrame(dataUrl);
+});
+
+// role notifications
+socket.on('role', (r) => {
+  myRole = r;
+  roleEl.textContent = r;
+  if (r === 'controller') {
+    alert('You are now the controller. You can interact with the shared browser.');
+    requestControlBtn.disabled = false;
+    requestControlBtn.textContent = 'Request Control';
+  } else {
+    // viewer
+    // no forced alert every time
+  }
+});
+
+// locked / error messages
+socket.on('locked', () => {
+  alert('Control is locked. Only the active controller can interact. You may request control.');
+});
+socket.on('nav-error', (m) => alert('Navigation error: ' + m));
+socket.on('queue-position', (pos) => {
+  queueStatus.textContent = `Your position: #${pos}`;
+});
+
+// convenience: allow paste via Ctrl+V anywhere (listen on window)
+window.addEventListener('paste', (e) => {
+  if (myRole !== 'controller') return;
+  // forward paste
+  const text = (e.clipboardData || window.clipboardData).getData('text');
+  if (text) socket.emit('paste', { text });
+});
+
+// initial focus on viewer so keyboard works
+viewer.focus();
+</script>
+</body>
+</html>
+
+

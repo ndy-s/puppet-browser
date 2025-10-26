@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "puppeteer": "^20.9.0",
+    "puppeteer": "^24.26.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "socket.io": "^4.8.1"

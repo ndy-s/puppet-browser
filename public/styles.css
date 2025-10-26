@@ -1,0 +1,248 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f4f6f9;
+    color: #333;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.browser-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    z-index: 10;
+}
+
+.nav-left {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e0e0e0;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: #d0d0d0;
+    transform: translateY(-1px);
+}
+
+.nav-btn .material-icons {
+    font-size: 20px;
+    color: #555;
+}
+
+.url-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    margin: 0 16px;
+    background: #f1f3f6;
+    border-radius: 8px;
+    padding: 4px 8px;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.url-icon {
+    font-size: 20px;
+    color: #888;
+    margin-right: 8px;
+}
+
+.url-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 6px 4px;
+    font-size: 14px;
+    background: transparent;
+}
+
+.go-btn {
+    background: #4f46e5;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    padding: 6px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.go-btn:hover {
+    background: #4338ca;
+}
+
+/* Status group */
+/* Queue info changes color based on control */
+.queue-info {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    text-align: center;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* States */
+.queue-info.control {
+    background: #d1fae5; /* greenish */
+    color: #065f46;
+}
+
+.queue-info.view-only {
+    background: #fde68a; /* yellowish */
+    color: #92400e;
+}
+
+/* Banner styling */
+.view-only-banner {
+    position: fixed;
+    bottom: 72px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111827;
+    color: #fff;
+    font-size: 13px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    z-index: 20;
+}
+
+.view-only-banner.visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-6px);
+}
+
+.screen-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 12px;
+    background: #e5e7eb;
+    overflow: auto;
+}
+
+.screen-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1400px;
+    height: 80%;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    outline: none;
+}
+
+.screen-wrapper.view-only #screen {
+    filter: blur(8px);
+    pointer-events: none; 
+    transition: filter 0.3s ease;
+}
+
+.screen-wrapper.view-only::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    pointer-events: none;
+}
+
+#screen {
+    max-width: 100%;
+    max-height: 100%;
+    user-select: none;
+}
+
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 16px;
+    gap: 12px;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #fff3;
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.keyboard-hint {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px 0;
+    font-size: 13px;
+    color: #555;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .browser-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    .url-container {
+        margin: 0;
+    }
+    .keyboard-hint {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .status-group {
+        flex-direction: row;
+        gap: 8px;
+        justify-content: center;
+    }
+    .view-only-banner {
+        bottom: 95px;
+    }
+}

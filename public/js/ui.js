@@ -20,9 +20,15 @@ export function updateQueue(queue, socketId) {
 
     const pos = queue.indexOf(socketId);
 
-    const headerIcon = hasControl ? "check_circle" : "visibility";
+    const headerIconFile = hasControl ? "check_circle.svg" : "visibility.svg";
     const headerText = hasControl ? "You are in control" : "View only";
-    elements.queueEl.innerHTML = `<span class="material-icons" style="font-size:16px; vertical-align:middle; margin-right:4px;">${headerIcon}</span>${headerText}`;
+
+    elements.queueEl.innerHTML = `
+        <img src="assets/icons/${headerIconFile}" alt="${headerText}" 
+             style="width:16px; height:16px; vertical-align:middle; margin-right:4px;">
+        ${headerText}
+    `;
+
     elements.queueEl.classList.toggle("control", hasControl);
     elements.queueEl.classList.toggle("view-only", !hasControl);
 
@@ -32,13 +38,11 @@ export function updateQueue(queue, socketId) {
     } else {
         let bannerText = "";
         if (pos === -1) {
-            bannerText = "You are not in the queue";
+            bannerText = "Not in the queue. Please wait.";
         } else if (pos === 0) {
-            bannerText = "You’re next! Waiting for your turn…";
-        } else if (pos === 1) {
-            bannerText = "Almost there! Your position: #2";
+            bannerText = "You’re next! Please wait.";
         } else {
-            bannerText = `Your position in queue: #${pos + 1}`;
+            bannerText = `You’re #${pos + 1} in the queue. Please wait.`;
         }
 
         elements.bannerEl.textContent = bannerText;
@@ -72,7 +76,7 @@ export function ensureControl(e) {
         alert("You are waiting in the queue…");
         return false;
     }
-    if (state.loading) return false;
-    return true;
+    return !state.loading;
+
 }
 

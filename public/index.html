@@ -1,65 +1,62 @@
 <!doctype html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Remote Browser</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <title>Remote Browser</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+<header class="browser-bar">
+    <div class="nav-left">
+        <button id="btn-back" class="nav-btn" title="Back (Alt + ←)">
+            <img src="assets/icons/arrow_back.svg" alt="Back" class="icon">
+        </button>
+        <button id="btn-forward" class="nav-btn" title="Forward (Alt + →)">
+            <img src="assets/icons/arrow_forward.svg" alt="Forward" class="icon">
+        </button>
+        <button id="btn-refresh" class="nav-btn" title="Refresh (F5)">
+            <img src="assets/icons/refresh.svg" alt="Refresh" class="icon">
+        </button>
+    </div>
 
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <div class="url-container">
+        <img src="assets/icons/captive_portal.svg" alt="Web" class="icon">
+        <input id="url" class="url-input" placeholder="Search or enter URL" title="Press Enter to go">
+        <button id="go" class="go-btn" title="Go (Enter)">
+            <img src="assets/icons/search.svg" alt="Search" class="icon">
+        </button>
+    </div>
 
-        <link rel="stylesheet" href="/styles.css">
-        <script src="/socket.io/socket.io.js"></script>
-    </head>
-    <body>
-        <header class="browser-bar">
-            <div class="nav-left">
-                <button id="btn-back" class="nav-btn" title="Back (Alt + ←)">
-                    <span class="material-icons">arrow_back</span>
-                </button>
-                <button id="btn-forward" class="nav-btn" title="Forward (Alt + →)">
-                    <span class="material-icons">arrow_forward</span>
-                </button>
-                <button id="btn-refresh" class="nav-btn" title="Refresh (F5)">
-                    <span class="material-icons">refresh</span>
-                </button>
-            </div>
+    <div class="status-group">
+        <div id="queue" class="queue-info">Waiting...</div>
+    </div>
+</header>
 
-            <div class="url-container">
-                <span class="material-icons url-icon">search</span>
-                <input id="url" class="url-input" placeholder="Search or enter URL" title="Press Enter to go">
-                <button id="go" class="go-btn" title="Go (Enter)">
-                    <span class="material-icons">arrow_forward</span>
-                </button>
-            </div>
-
-            <div class="status-group">
-                <div id="queue" class="queue-info">Waiting...</div>
-            </div>
-        </header>
-
-        <main class="screen-container">
-            <div class="screen-wrapper" id="screen-wrapper" tabindex="0">
-                <img id="screen" draggable="false" alt="Remote Screen">
-                <div id="loading-overlay" class="loading-overlay">
-                    <div class="spinner"></div>
-                    <div class="loading-text">Loading Remote Screen...</div>
-                </div>
-            </div>
-        </main>
-
-        <div class="keyboard-hint">
-            <span>Back: Alt + ←</span>
-            <span>Forward: Alt + →</span>
-            <span>Refresh: F5</span>
-            <span>Go: Enter</span>
-            <span>Copy/Paste: Ctrl + C / Ctrl + V</span>
+<main class="screen-container">
+    <div class="screen-wrapper" id="screen-wrapper" tabindex="0">
+        <img id="screen" draggable="false" alt="Remote Screen">
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading Remote Screen...</div>
         </div>
+    </div>
+</main>
 
-        <div id="view-only-banner" class="view-only-banner">Waiting for your turn…</div>
+<div class="keyboard-hint">
+    <span>Back: Alt + ←</span>
+    <span>Forward: Alt + →</span>
+    <span>Refresh: F5</span>
+    <span>Go: Enter</span>
+    <span>Copy/Paste: Ctrl + C / Ctrl + V</span>
+</div>
 
-        <script type="module" src="/js/client.js"></script>
-    </body>
+<div id="view-only-banner" class="view-only-banner">Waiting for your turn…</div>
+
+<script type="module" src="./js/client.js"></script>
+</body>
 </html>
+
 
 

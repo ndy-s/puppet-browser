@@ -18,5 +18,14 @@ export function setupSocket() {
         updateQueue(queue, socket.id);
         log("Socket: Queue updated", queue);
     });
+
+    socket.on("clipboard-copy", async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+        } catch (err) {
+            console.error("Failed to write to clipboard:", err);
+        }
+    });
+
 }
 

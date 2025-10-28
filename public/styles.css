@@ -45,7 +45,7 @@ body {
     transform: translateY(-1px);
 }
 
-.nav-btn .material-icons {
+.nav-btn .icon {
     font-size: 20px;
     color: #555;
 }
@@ -70,6 +70,7 @@ body {
 .url-input {
     flex: 1;
     border: none;
+    margin-left: 4px;
     outline: none;
     padding: 6px 4px;
     font-size: 14px;
@@ -77,7 +78,7 @@ body {
 }
 
 .go-btn {
-    background: #4f46e5;
+    background: #e0e0e0;
     border: none;
     border-radius: 6px;
     color: #fff;
@@ -89,11 +90,10 @@ body {
 }
 
 .go-btn:hover {
-    background: #4338ca;
+    background: #d0d0d0;
 }
 
 /* Status group */
-/* Queue info changes color based on control */
 .queue-info {
     font-size: 13px;
     font-weight: 600;
@@ -105,12 +105,11 @@ body {
 
 /* States */
 .queue-info.control {
-    background: #d1fae5; /* greenish */
+    background: #d1fae5;
     color: #065f46;
 }
 
 .queue-info.view-only {
-    background: #fde68a; /* yellowish */
     color: #92400e;
 }
 
@@ -160,9 +159,14 @@ body {
     outline: none;
 }
 
+.screen-wrapper:focus {
+    outline: 2px solid #0078ff;
+    outline-offset: 4px;
+}
+
 .screen-wrapper.view-only #screen {
     filter: blur(8px);
-    pointer-events: none; 
+    pointer-events: none;
     transition: filter 0.3s ease;
 }
 
@@ -215,11 +219,26 @@ body {
     display: flex;
     justify-content: center;
     gap: 16px;
-    padding: 8px 0;
+    padding: 8px 12px;
     font-size: 13px;
     color: #555;
     background: #f9fafb;
     border-top: 1px solid #e5e7eb;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.keyboard-hint span {
+    white-space: nowrap;
+}
+
+.keyboard-hint::-webkit-scrollbar {
+    height: 4px;
+}
+
+.keyboard-hint::-webkit-scrollbar-thumb {
+    background: #c0c0c0;
+    border-radius: 2px;
 }
 
 /* Responsive */
@@ -229,12 +248,15 @@ body {
         align-items: stretch;
         gap: 8px;
     }
+
     .url-container {
         margin: 0;
     }
+
     .keyboard-hint {
-        flex-direction: column;
-        gap: 4px;
+        justify-content: flex-start;
+        gap: 12px;
+        padding: 8px;
     }
 
     .status-group {
@@ -242,7 +264,10 @@ body {
         gap: 8px;
         justify-content: center;
     }
+
     .view-only-banner {
         bottom: 95px;
     }
 }
+
+

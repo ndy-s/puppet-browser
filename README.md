@@ -1,4 +1,11 @@
 # Puppeteer Remote Browser
+<p>
+  <img src="https://github.com/user-attachments/assets/2de0fa63-60a4-4e98-9aed-51da72e43adc" alt="Puppeteer Browser Logo" width="150" height="150" style="vertical-align: middle; margin-right: 15px;">
+  <blockquote style="display: inline; font-size: 1.2em; margin: 0;">
+    “A browser you can control from anywhere.”
+  </blockquote>
+</p>
+
 This repo is a small project I made out of curiosity about how remote desktop connections work. I wanted to see if I could make something similar, but just for a browser. So here it is, a simple remote browser connection using [Puppeteer](https://pptr.dev/).
 
 It's very lightweight and experimental, basically a learning playground for me, but it works for controlling a browser remotely in a smaller scope.

@@ -24,7 +24,7 @@ export function updateQueue(queue, socketId) {
     const headerText = hasControl ? "You are in control" : "View only";
 
     elements.queueEl.innerHTML = `
-        <img src="assets/icons/${headerIconFile}" alt="${headerText}" 
+        <img class="icon" src="assets/icons/${headerIconFile}" alt="${headerText}" 
              style="width:16px; height:16px; vertical-align:middle; margin-right:4px;">
         ${headerText}
     `;

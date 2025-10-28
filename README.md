@@ -36,7 +36,7 @@ http://localhost:3000
 You can now control the browser remotely.
 
 ## How It Works?
-At first, I thought it would be easy to just embed a browser in an iframe, but many sites including Google services prevent that for security reasons. So I had to find another way, and that's when I discovered Puppeteer, which is usually used for automated browser testing. The server launches a Chromium browser (or Chrome, if installed) in the background using Puppeteer. I use [chrome-launcerh](https://www.npmjs.com/package/chrome-launcher) to detect if Chrome is installed. If not, it falls back to the bundled Chromium from Puppeteer.
+At first, I thought it would be easy to just embed a browser in an iframe, but many sites including Google services prevent that for security reasons. So I had to find another way, and that's when I discovered Puppeteer, which is usually used for automated browser testing. The server launches a Chromium browser (or Chrome, if installed) in the background using Puppeteer. I use [chrome-launcer](https://www.npmjs.com/package/chrome-launcher) to detect if Chrome is installed. If not, it falls back to the bundled Chromium from Puppeteer.
 
 ### Screenshot Capture & Streaming
 Here's roughly how it works. The Puppeteer browser runs in the background and loads the pages you want to use. The server captures screenshots periodically and sends those images to the client using [Socket.IO](https://socket.io/). The capture loop runs about every 100 milliseconds, which usually gives a frame rate between 5 and 10 frames per second depending on the page and network.

@@ -6,12 +6,14 @@
   </blockquote>
 </p>
 
-This repo is a small project I made out of curiosity about how remote desktop connections work. I wanted to see if I could make something similar, but just for a browser. The name "Puppet Browser" comes from the idea that the browser acts like a puppet you can control remotely. It uses [Puppeteer](https://pptr.dev/) as the foundation to run and control the browser programmatically.
+This repo is a small project I made out of curiosity about how remote desktop connections actually work. Instead of controlling an entire computer, I wanted to try the same idea on a single web browser so it would be more lightweight and easier to experiment with.
 
-It's very lightweight and experimental, basically a learning playground for me, but it works for controlling a browser remotely in a smaller scope.
+That is where the name “Puppet Browser” comes from. The browser acts like a puppet that you can control remotely. It uses [Puppeteer](https://pptr.dev/) behind the scenes to launch and interact with Chromium programmatically.
+
+It is still experimental and mainly a learning playground for me, but it already works for remotely controlling a browser in a smaller and more focused scope.
 
 ## What It Does?
-It launches a browser that you can connect to from another PC. You can see the browser screen in real-time and send keyboard and mouse input, so it feels like you're using a normal browser. I tried to keep the code minimal and understandable, so you can peek under the hood and see how everything works.
+Basically, it launches a browser that you can connect to from another PC. You can see the browser screen in real-time and send keyboard and mouse input, so it feels like you're using a normal browser. I tried to keep the code minimal and understandable, so you can peek under the hood and see how everything works.
 
 ### My Use Case
 I use this on my local network with two PCs connected over LAN. One PC has internet access, while the other doesn't. Using this setup, the PC without internet can still control and access a browser running on the PC that does. It's perfect for private LAN networks or small setups like mine, giving the offline PC a fully functional browser without needing direct internet access.

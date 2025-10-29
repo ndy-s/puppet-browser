@@ -1,6 +1,6 @@
 # Puppet Browser
 <p>
-  <img src="https://github.com/ndy-s/puppet-browser/assets/puppet-browser-icon.png" alt="Puppet Browser Logo" width="150" height="150" style="vertical-align: middle; margin-right: 15px;">
+  <img src="https://github.com/ndy-s/puppet-browser/blob/main/assets/puppet-browser-icon.png" alt="Puppet Browser Logo" width="150" height="150" style="vertical-align: middle; margin-right: 15px;">
   <blockquote style="display: inline; font-size: 1.2em; margin: 0;">
     “A browser you can control from anywhere.”
   </blockquote>

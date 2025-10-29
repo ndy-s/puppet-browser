@@ -38,10 +38,10 @@ You can now control the browser remotely.
 <img src="https://raw.githubusercontent.com/ndy-s/puppet-browser/main/assets/preview.gif" alt="Puppet Browser Demo">
 
 ## How It Works?
-At first, I thought it would be easy to just embed a browser in an iframe, but many sites including Google services prevent that for security reasons. So I had to find another way, and that's when I discovered Puppeteer, which is usually used for automated browser testing. The server launches a Chromium browser (or Chrome, if installed) in the background using Puppeteer. I use [chrome-launcer](https://www.npmjs.com/package/chrome-launcher) to detect if Chrome is installed. If not, it falls back to the bundled Chromium from .
+At first, I thought it would be easy to just embed a browser in an iframe, but many sites including Google services prevent that for security reasons. So I had to find another way, and that's when I discovered Puppeteer, which is usually used for automated browser testing. The server launches a Chromium browser (or Chrome, if installed) in the background using Puppeteer. I use [chrome-launcer](https://www.npmjs.com/package/chrome-launcher) to detect if Chrome is installed. If not, it falls back to the bundled Chromium from Puppeteer.
 
 ### Screenshot Capture & Streaming
-Here's roughly how it works. The  browser runs in the background and loads the pages you want to use. The server captures screenshots periodically and sends those images to the client using [Socket.IO](https://socket.io/). The capture loop runs about every 100 milliseconds, which usually gives a frame rate between 5 and 10 frames per second depending on the page and network.
+Here's roughly how it works. The Puppeteer browser runs in the background and loads the pages you want to use. The server captures screenshots periodically and sends those images to the client using [Socket.IO](https://socket.io/). The capture loop runs about every 100 milliseconds, which usually gives a frame rate between 5 and 10 frames per second depending on the page and network.
 
 <img src="https://raw.githubusercontent.com/ndy-s/puppet-browser/main/assets/diagram.png" alt="System Diagram" width="500">
 
@@ -53,7 +53,7 @@ It's not super fast, but it works well enough for my LAN setup. A faster solutio
 I also added automatic recovery for streaming. If the browser crashes or an error occurs while transmitting images to the client, the server doesn't fail completely. Instead, it automatically recovers and restarts the necessary processes on the browser side, so your remote session can continue without manual intervention.
 
 ### Input Handling
-When you type or click on the client, those events are sent back to the server and executed in the  browser. The client listens for different input events, including mouse movements, mouse button presses and releases, scrolling, and keyboard key presses and releases. Each event is captured in real-time and transmitted via Socket.IO to the server, which then performs the corresponding action in the  browser. This makes it feel like you are controlling a normal browser even though it's running on another PC. You can see the full implementation of these input event listeners in the [`control.js`](https://github.com/ndy-s/puppet-browser/blob/main/public/js/control.js) file.
+When you type or click on the client, those events are sent back to the server and executed in the Puppeteer browser. The client listens for different input events, including mouse movements, mouse button presses and releases, scrolling, and keyboard key presses and releases. Each event is captured in real-time and transmitted via Socket.IO to the server, which then performs the corresponding action in the Puppeteer browser. This makes it feel like you are controlling a normal browser even though it's running on another PC. You can see the full implementation of these input event listeners in the [`control.js`](https://github.com/ndy-s/puppet-browser/blob/main/public/js/control.js) file.
 
 ### Clipboard Support
 But then it only works internally on the server remote browser. So how can we copy across the client and the remote server? What I did is intercept the event listeners to handle specific key combinations. For example, pressing `Ctrl + V` will run a process to paste the current client clipboard into the browser screen, and `Ctrl + C` works similarly.
@@ -66,7 +66,7 @@ It turns out clipboard access only works reliably on `https` or `localhost`. If 
 ### Action Queue
 Another challenge I faced is that event listeners and Socket.IO emit/on events are not executed sequentially. Actions might overlap if sent at the same time. To fix this, I implemented a [`queue.js`](https://github.com/ndy-s/puppet-browser/blob/main/lib/queue.js), where all actions are recorded and processed sequentially.
 
-There is also a simple button interface that represents browser controls like back, forward, and refresh.  often breaks its internal history, so I manage it manually. I use stacks for both back and forward functions, where I can push and pop history events as they happen. You can check the implementation in [`browser.js`](https://github.com/ndy-s/puppet-browser/blob/main/lib/browser.js).
+There is also a simple button interface that represents browser controls like back, forward, and refresh. Puppeteer often breaks its internal history, so I manage it manually. I use stacks for both back and forward functions, where I can push and pop history events as they happen. You can check the implementation in [`browser.js`](https://github.com/ndy-s/puppet-browser/blob/main/lib/browser.js).
 
 ### Browser Flow
 Currently, the app works with a shared browser. Each user session must wait in the queue to use the remote browser, and the queue decides who can control it at a given time. The browser state is shared across all users, which avoids consuming a lot of memory if each user had their own browser instance.

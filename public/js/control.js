@@ -54,31 +54,14 @@ async function sendKey(e) {
             try {
                 const text = await navigator.clipboard.readText();
 
-                socket.emit("control-event", {
-                    type: "keyboard",
-                    action: "keyup",
-                    key: "Control",
-                    code: "KeyV",
-                    shift: false,
-                    ctrl: true,
-                    alt: false,
-                    meta: false,
-                    isChar: false,
-                });
-
-                socket.emit("control-event", {
-                    type: "keyboard",
-                    action: "keydown",
-                    key: text,
-                    code: e.code,
-                    shift: e.shiftKey,
-                    ctrl: e.ctrlKey,
-                    alt: e.altKey,
-                    meta: e.metaKey,
-                    isChar,
-                });
+                sendClipboardText(text, e);
             } catch (err) {
-                console.error("Failed to read clipboard:", err);
+                console.warn("Clipboard read failed, falling back to manual paste:", err);
+
+                const text = await showPastePopup();
+                if (text && text.trim() !== "") sendClipboardText(text, e);
+
+                elements.wrapper.focus();
             }
         }
 
@@ -100,5 +83,71 @@ async function sendKey(e) {
     e.preventDefault();
 }
 
+function sendClipboardText(text, e) {
+    socket.emit("control-event", {
+        type: "keyboard",
+        action: "keyup",
+        key: "Control",
+        code: "KeyV",
+        shift: false,
+        ctrl: true,
+        alt: false,
+        meta: false,
+        isChar: false,
+    });
 
+    socket.emit("control-event", {
+        type: "keyboard",
+        action: "keydown",
+        key: text,
+        code: e.code,
+        shift: e.shiftKey,
+        ctrl: e.ctrlKey,
+        alt: e.altKey,
+        meta: e.metaKey,
+        isChar: true,
+    });
+}
 
+function showPastePopup() {
+    return new Promise(resolve => {
+        const overlay = document.createElement('div');
+        overlay.className = 'paste-overlay';
+
+        const box = document.createElement('div');
+        box.className = 'paste-box';
+
+        box.innerHTML = `
+            <h3 class="paste-title">Manual Paste</h3>
+            <p class="paste-desc">
+                Clipboard access isn’t available in this network.<br>
+                Paste your text below and press <b>Send</b>.
+            </p>
+            <textarea id="manualPasteInput" class="paste-input" rows="4" placeholder="Paste text here..."></textarea>
+            <div class="paste-actions">
+                <button id="pasteConfirmBtn" class="btn primary">Send</button>
+                <button id="pasteCancelBtn" class="btn secondary">Cancel</button>
+            </div>
+        `;
+
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        const input = box.querySelector('#manualPasteInput');
+        const confirm = box.querySelector('#pasteConfirmBtn');
+        const cancel = box.querySelector('#pasteCancelBtn');
+
+        input.focus();
+
+        confirm.onclick = () => {
+            const value = input.value;
+            overlay.remove();
+            resolve(value);
+        };
+
+        cancel.onclick = () => {
+            overlay.remove();
+            resolve(null);
+        };
+    });
+}

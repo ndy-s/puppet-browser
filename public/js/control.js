@@ -1,5 +1,5 @@
 import { socket, elements, state, updateState } from "./config.js";
-import { ensureControl } from "./ui.js";
+import { ensureControl, showPastePopup } from "./ui.js";
 
 function getXY(e) {
     const rect = elements.screen.getBoundingClientRect();
@@ -109,45 +109,4 @@ function sendClipboardText(text, e) {
     });
 }
 
-function showPastePopup() {
-    return new Promise(resolve => {
-        const overlay = document.createElement('div');
-        overlay.className = 'paste-overlay';
 
-        const box = document.createElement('div');
-        box.className = 'paste-box';
-
-        box.innerHTML = `
-            <h3 class="paste-title">Manual Paste</h3>
-            <p class="paste-desc">
-                Clipboard access isn’t available in this network.<br>
-                Paste your text below and press <b>Send</b>.
-            </p>
-            <textarea id="manualPasteInput" class="paste-input" rows="4" placeholder="Paste text here..."></textarea>
-            <div class="paste-actions">
-                <button id="pasteConfirmBtn" class="btn primary">Send</button>
-                <button id="pasteCancelBtn" class="btn secondary">Cancel</button>
-            </div>
-        `;
-
-        overlay.appendChild(box);
-        document.body.appendChild(overlay);
-
-        const input = box.querySelector('#manualPasteInput');
-        const confirm = box.querySelector('#pasteConfirmBtn');
-        const cancel = box.querySelector('#pasteCancelBtn');
-
-        input.focus();
-
-        confirm.onclick = () => {
-            const value = input.value;
-            overlay.remove();
-            resolve(value);
-        };
-
-        cancel.onclick = () => {
-            overlay.remove();
-            resolve(null);
-        };
-    });
-}

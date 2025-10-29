@@ -35,6 +35,8 @@ http://localhost:3000
 ```
 You can now control the browser remotely.
 
+<img src="https://raw.githubusercontent.com/ndy-s/puppet-browser/main/assets/preview.gif" alt="Puppet Browser Demo">
+
 ## How It Works?
 At first, I thought it would be easy to just embed a browser in an iframe, but many sites including Google services prevent that for security reasons. So I had to find another way, and that's when I discovered Puppeteer, which is usually used for automated browser testing. The server launches a Chromium browser (or Chrome, if installed) in the background using Puppeteer. I use [chrome-launcer](https://www.npmjs.com/package/chrome-launcher) to detect if Chrome is installed. If not, it falls back to the bundled Chromium from .
 
@@ -58,6 +60,8 @@ But then it only works internally on the server remote browser. So how can we co
 
 > [!CAUTION]
 > This requires permission from your browser, so you need to accept the confirmation when it appears.
+
+It turns out clipboard access only works reliably on `https` or `localhost`. If automatic copy/paste doesn’t work, a manual popup will show up asking you to paste or copy the content. Just follow the instructions in the popup and it should work. Even with permissions, some browsers can still block clipboard actions in certain situations, so having this manual fallback makes sure everything runs smoothly.
 
 ### Action Queue
 Another challenge I faced is that event listeners and Socket.IO emit/on events are not executed sequentially. Actions might overlap if sent at the same time. To fix this, I implemented a [`queue.js`](https://github.com/ndy-s/puppet-browser/blob/main/lib/queue.js), where all actions are recorded and processed sequentially.

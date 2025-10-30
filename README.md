@@ -2,13 +2,13 @@
 <p>
   <img src="https://github.com/ndy-s/puppet-browser/blob/main/assets/puppet-browser-icon.png" alt="Puppet Browser Logo" width="150" height="150" style="vertical-align: middle; margin-right: 15px;">
   <blockquote style="display: inline; font-size: 1.2em; margin: 0;">
-    “A browser you can control from anywhere.”
+    "A browser you can control from anywhere."
   </blockquote>
 </p>
 
 This repo is a small project I made out of curiosity about how remote desktop connections actually work. Instead of controlling an entire computer, I wanted to try the same idea on a single web browser so it would be more lightweight and easier to experiment with.
 
-That is where the name “Puppet Browser” comes from. The browser acts like a puppet that you can control remotely. It uses [Puppeteer](https://pptr.dev/) behind the scenes to launch and interact with Chromium programmatically.
+That is where the name "Puppet Browser" comes from. The browser acts like a puppet that you can control remotely. It uses [Puppeteer](https://pptr.dev/) behind the scenes to launch and interact with Chromium programmatically.
 
 It is still experimental and mainly a learning playground for me, but it already works for remotely controlling a browser in a smaller and more focused scope.
 
@@ -63,7 +63,7 @@ But then it only works internally on the server remote browser. So how can we co
 > [!CAUTION]
 > This requires permission from your browser, so you need to accept the confirmation when it appears.
 
-It turns out clipboard access only works reliably on `https` or `localhost`. If automatic copy/paste doesn’t work, a manual popup will show up asking you to paste or copy the content. Just follow the instructions in the popup and it should work. Even with permissions, some browsers can still block clipboard actions in certain situations, so having this manual fallback makes sure everything runs smoothly.
+It turns out clipboard access only works reliably on `https` or `localhost`. If automatic copy/paste doesn't work, a manual popup will show up asking you to paste or copy the content. Just follow the instructions in the popup and it should work. Even with permissions, some browsers can still block clipboard actions in certain situations, so having this manual fallback makes sure everything runs smoothly.
 
 ### Action Queue
 Another challenge I faced is that event listeners and Socket.IO emit/on events are not executed sequentially. Actions might overlap if sent at the same time. To fix this, I implemented a [`queue.js`](https://github.com/ndy-s/puppet-browser/blob/main/lib/queue.js), where all actions are recorded and processed sequentially.

@@ -1,5 +1,5 @@
 import { socket, elements, log } from "./config.js";
-import {handleScreenUpdate, setLoading, showCopyPopup, updateQueue} from "./ui.js";
+import { handleScreenUpdate, setLoading, showCopyPopup, updateQueue } from "./ui.js";
 
 export function setupSocket() {
     socket.on("loading-start", (msg) => setLoading(true, msg));
@@ -24,6 +24,19 @@ export function setupSocket() {
             await navigator.clipboard.writeText(text);
         } catch (err) {
             console.warn("Clipboard write failed, showing fallback:", err);
+
+            socket.emit("control-event", {
+                type: "keyboard",
+                action: "keyup",
+                key: "Control",
+                code: "KeyV",
+                shift: false,
+                ctrl: true,
+                alt: false,
+                meta: false,
+                isChar: false,
+            });
+
             showCopyPopup(text);
         }
     });

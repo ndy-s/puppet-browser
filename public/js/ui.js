@@ -108,7 +108,10 @@ export function showCopyPopup(text) {
     textarea.focus();
     textarea.select();
 
-    closeBtn.onclick = () => overlay.remove();
+    closeBtn.onclick = () => {
+        overlay.remove();
+        elements.wrapper.focus();
+    };
 }
 
 export function showPastePopup() {

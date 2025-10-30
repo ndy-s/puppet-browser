@@ -45,7 +45,7 @@ At first, I thought it would be easy to just embed a browser in an iframe, but m
 ### Screenshot Capture & Streaming
 Here's roughly how it works. The Puppeteer browser runs in the background and loads the pages you want to use. The server captures screenshots periodically and sends those images to the client using [Socket.IO](https://socket.io/). The capture loop runs about every 100 milliseconds, which usually gives a frame rate between 5 and 10 frames per second depending on the page and network.
 
-<img src="https://raw.githubusercontent.com/ndy-s/puppet-browser/main/assets/diagram.png" alt="System Diagram" width="500">
+<img src="https://raw.githubusercontent.com/ndy-s/puppet-browser/main/assets/diagram.png" alt="System Diagram">
 
 > [!NOTE]
 > Using 100 ms isn't mandatory. For me, it's just a good balance between performance and smoothness. Feel free to tune it as you like.
